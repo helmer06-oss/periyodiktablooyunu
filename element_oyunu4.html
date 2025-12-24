@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tolga Aydos - Kimya Bilgi Yarışması</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #2c3e50;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px 0;
+        }
+        #game-container {
+            background-color: #ffffff;
+            width: 90%; 
+            max-width: 900px;
+            padding: 40px 50px;
+            border-radius: 20px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.6);
+            text-align: center;
+            color: #333;
+            position: relative;
+        }
+        
+        /* LOGO AYARLARI */
+        #site-logo {
+            max-width: 250px;     /* Genişlik sınırı */
+            max-height: 150px;    /* Yükseklik sınırı */
+            width: auto;
+            height: auto;
+            margin: 0 auto 20px auto;
+            display: block;       /* Ortalamak için */
+        }
+
+        h1 {
+            color: #2c3e50;
+            font-size: 32px;
+            margin-bottom: 25px;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 15px;
+            display: inline-block;
+            width: 100%;
+        }
+        
+        #question-text {
+            font-size: 28px;
+            color: #2c3e50;
+            margin-bottom: 35px;
+            font-weight: 700;
+            line-height: 1.4;
+            min-height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+        }
+        .btn {
+            padding: 22px;
+            font-size: 20px;
+            cursor: pointer;
+            background-color: #ecf0f1;
+            color: #2c3e50;
+            border: 2px solid #bdc3c7;
+            border-radius: 15px;
+            transition: all 0.2s;
+            font-weight: 600;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .btn:hover {
+            background-color: #3498db;
+            color: white;
+            border-color: #3498db;
+            transform: translateY(-3px);
+            box-shadow: 0 7px 15px rgba(52, 152, 219, 0.4);
+        }
+        .btn:disabled {
+            background-color: #bdc3c7;
+            border-color: #bdc3c7;
+            color: #7f8c8d;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        #footer-branding {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+            font-size: 15px;
+            color: #95a5a6;
+        }
+        #footer-branding a {
+            color: #3498db;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        
+        /* Renkler */
+        .correct { background-color: #27ae60 !important; border-color: #27ae60 !important; color: white !important; }
+        .wrong { background-color: #c0392b !important; border-color: #c0392b !important; color: white !important; }
+        
+        #timer-bar-container {
+            width: 100%;
+            height: 14px;
+            background-color: #ecf0f1;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            overflow: hidden;
+            border: 1px solid #bdc3c7;
+        }
+        #timer-bar {
+            height: 100%;
+            width: 100%;
+            background-color: #f39c12;
+            transition: width 1s linear;
+        }
+        #score-board {
+            font-size: 24px;
+            margin-top: 30px;
+            color: #7f8c8d;
+            font-weight: bold;
+        }
+        #feedback {
+            font-size: 22px;
+            min-height: 35px;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+        #restart-btn {
+            background-color: #8e44ad;
+            color: white;
+            border: none;
+            margin-top: 30px;
+            width: 100%;
+        }
+        #restart-btn:hover { background-color: #9b59b6; }
+
+        @media (max-width: 768px) {
+            .options-grid { grid-template-columns: 1fr; }
+            #question-text { font-size: 22px; min-height: auto; }
+            .btn { font-size: 18px; padding: 18px; }
+            #game-container { padding: 30px 20px; width: 95%; }
+            h1 { font-size: 26px; }
+        }
+    </style>
+</head>
+<body>
+
+<div id="game-container">
+    
+    <img id="site-logo" src="logo.png" alt="Tolga Aydos Logo" onerror="this.style.display='none'"> 
+    
+    <h1>🧪 Tolga Aydos ile Periyodik Tablo Yarışması</h1>
+    
+    <div id="timer-bar-container">
+        <div id="timer-bar"></div>
+    </div>
+    <div id="feedback"></div>
+    <div id="question-text">Sorular Yükleniyor...</div>
+    <div class="options-grid" id="options-area"></div>
+    <div id="score-board">Puan: 0</div>
+    <button id="restart-btn" class="btn" style="display:none;">Yeniden Başlat</button>
+
+    <div id="footer-branding">
+        Bu etkinlik <a href="https://tolgaaydos.com" target="_blank">tolgaaydos.com</a> öğrencileri için hazırlanmıştır.
+    </div>
+</div>
+
+<script>
+    const questions = [
+        { text: "Metallerin son katmanlarında genellikle kaç elektron bulunur?", options: ["1, 2 veya 3", "5, 6 veya 7", "Tamamı doludur (8)", "Sadece 1"], correct: 0, info: "Metallerin son yörüngesinde genelde 1, 2, 3 elektron bulunur." },
+        { text: "Ametallerin son katmanlarında genellikle kaç elektron bulunur?", options: ["1, 2 veya 3", "4, 5, 6 veya 7", "Sadece 8", "Sadece 2"], correct: 1, info: "Ametallerin son katmanlarında genellikle 5, 6 veya 7 elektron vardır." },
+        { text: "Metaller doğada hangi yapıda bulunurlar?", options: ["Moleküler yapıda", "Atomik yapıda", "Gaz halinde", "Sıvı halinde"], correct: 1, info: "Metaller doğada 'Atomik' yapıda bulunur." },
+        { text: "Ametaller doğada genellikle hangi yapıda bulunurlar?", options: ["Atomik yapıda", "Kristal yapıda", "Molekül yapılı", "Plazma"], correct: 2, info: "Ametaller doğada 'Molekül' yapılı (Örn: O2, H2) bulunur." },
+        { text: "Metallerin kendi aralarında oluşturduğu 'Pirinç, Tunç, Lehim' gibi karışımlara ne denir?", options: ["Bileşik", "Alaşım", "Çözelti", "Süspansiyon"], correct: 1, info: "Metaller bileşik yapmaz, 'Alaşım' oluşturur." },
+        { text: "Soygazlar doğada hangi fiziksel halde bulunur?", options: ["Tek atomlu Gaz", "İki atomlu Gaz", "Katı", "Sıvı"], correct: 0, info: "Soygazlar doğada tek atomlu (monoatomik) gaz halinde bulunur." },
+        { text: "Aşağıdakilerden hangisi bir 'Soygaz' değildir?", options: ["Helyum (He)", "Neon (Ne)", "Argon (Ar)", "Azot (N)"], correct: 3, info: "Azot (N) 7A grubunda değil, 5A grubunda bir ametaldir; Soygaz değildir." },
+        { text: "Metaller bileşik oluştururken elektronları ne yaparlar?", options: ["Verirler (Katyon olurlar)", "Alırlar (Anyon olurlar)", "Ortaklaşa kullanırlar", "Hiçbir şey yapmazlar"], correct: 0, info: "Metaller elektron vererek pozitif (+) yüklü Katyon olurlar." },
+        { text: "Ametaller kendi aralarında bileşik oluştururken ne tür bağ yaparlar?", options: ["İyonik (Alışveriş)", "Kovalent (Ortaklaşa)", "Metalik", "Alaşım"], correct: 1, info: "Ametaller kendi aralarında elektronları ortaklaşa kullanır (Kovalent bağ)." },
+        { text: "Periyodik tablonun sol tarafında (Hidrojen hariç) ağırlıklı olarak hangileri bulunur?", options: ["Ametaller", "Soygazlar", "Metaller", "Yarı Metaller"], correct: 2, info: "Tablonun sol tarafı büyük oranda metallerden oluşur." },
+        { text: "Oda sıcaklığında sıvı halde bulunan tek metal hangisidir?", options: ["Demir", "Altın", "Cıva", "Bakır"], correct: 2, info: "Cıva hariç tüm metaller oda sıcaklığında katıdır." },
+        { text: "Hangisi elektriği iyi ileten bir 'Ametal' istisnasıdır?", options: ["Kükürt", "Oksijen", "Grafit (Karbon)", "Flor"], correct: 2, info: "Normalde ametaller iletmez ancak Karbonun bir formu olan Grafit iletir." },
+        { text: "8A grubundaki soygazların (Helyum hariç) son yörüngesinde kaç elektron vardır?", options: ["2", "8", "18", "32"], correct: 1, info: "Helyum'da 2, diğer soygazlarda 8 elektron vardır." },
+        { text: "Aşağıdaki elementlerden hangisi bir Yarı Metaldir?", options: ["Bor (B)", "Oksijen (O)", "Magnezyum (Mg)", "Helyum (He)"], correct: 0, info: "Bor ve Silisyum ilk 20 element içindeki yarı metallerdir." },
+        { text: "Periyodik tabloda soldan sağa gidildikçe atom numarası nasıl değişir?", options: ["Azalır", "Artar", "Değişmez", "Önce artar sonra azalır"], correct: 1, info: "Periyodik tabloda soldan sağa proton sayısı (atom no) artar." },
+        { text: "1. Katman en fazla kaç elektron alabilir?", options: ["2", "8", "18", "1"], correct: 0, info: "Çekirdeğe en yakın 1. katman en fazla 2 elektron alır." },
+        { text: "Hidrojen elementi 1A grubunda olmasına rağmen hangi sınıftadır?", options: ["Metal", "Ametal", "Yarı Metal", "Soygaz"], correct: 1, info: "Hidrojen metallerin olduğu grupta yer alan bir ametaldir." },
+        { text: "Aynı periyotta bulunan elementlerin neleri eşittir?", options: ["Son yörünge elektronları", "Katman sayıları", "Proton sayıları", "Fiziksel özellikleri"], correct: 1, info: "Aynı periyottaki elementlerin katman sayıları eşittir." },
+        { text: "Yarı metaller fiziksel özellikleri bakımından kime benzer?", options: ["Ametallere", "Metallere", "Soygazlara", "Sıvılara"], correct: 1, info: "Fiziksel olarak metallere (parlak/sert), kimyasal olarak ametallere benzerler." },
+        { text: "Metaller tel ve levha haline getirilebilir mi?", options: ["Evet, işlenebilirler", "Hayır, kırılgandırlar", "Sadece ısıtılırsa", "Sadece sıvıysa"], correct: 0, info: "Metaller işlenebilir, tel ve levha haline getirilebilir." },
+        { text: "Periyodik tabloda dikey sütunlara ne ad verilir?", options: ["Periyot", "Grup", "Sıra", "Yörünge"], correct: 1, info: "Dikey sütunlara Grup, yatay sıralara Periyot denir." },
+        { text: "Hangi grup elementleri kararlı yapıdadır ve bileşik oluşturmaz?", options: ["1A (Alkali Metaller)", "7A (Halojenler)", "8A (Soygazlar)", "2A (Toprak Alkali)"], correct: 2, info: "Soygazlar kararlı oldukları için bileşik oluşturmazlar." },
+        { text: "Metallerin erime ve kaynama noktaları nasıldır?", options: ["Genellikle düşüktür", "Genellikle yüksektir", "Daima sıfırın altındadır", "Belirsizdir"], correct: 1, info: "Metallerin erime ve kaynama noktaları genellikle yüksektir." },
+        { text: "Atom numarası 10 olan Neon (2-8) hangi gruptadır?", options: ["2A", "8A", "7A", "1A"], correct: 1, info: "Son katmanında 8 elektron olduğu için 8A grubundadır." },
+        { text: "Ametallerin yüzeyleri nasıldır?", options: ["Parlak", "Mat", "Saydam", "Metalik"], correct: 1, info: "Ametallerin yüzeyleri genellikle mattır." },
+        { text: "Proton sayısı elektron sayısına eşit olan atoma ne denir?", options: ["İyon", "Nötr Atom", "Katyon", "Anyon"], correct: 1, info: "Yük dengesi olan (Proton=Elektron) atoma Nötr Atom denir." },
+        { text: "Isı ve elektriği ametallerden iyi, metallerden kötü ileten sınıf hangisidir?", options: ["Soygazlar", "Yarı Metaller", "Alaşım", "Asitler"], correct: 1, info: "Yarı metaller orta düzeyde iletkenliğe sahiptir." },
+        { text: "Periyodik tabloda 3. Periyot 8A grubunda yer alan element hangisidir (2-8-8)?", options: ["Helyum", "Neon", "Argon", "Klor"], correct: 2, info: "2-8-8 dizilimine sahip element Argon'dur." }
+    ];
+
+    let currentQuestionIndex = 0;
+    let score = 0;
+    let timeLeft = 30;
+    let timerInterval;
+    const totalTime = 30;
+
+    const questionTextEl = document.getElementById("question-text");
+    const optionsAreaEl = document.getElementById("options-area");
+    const scoreBoardEl = document.getElementById("score-board");
+    const timerBarEl = document.getElementById("timer-bar");
+    const feedbackEl = document.getElementById("feedback");
+    const restartBtn = document.getElementById("restart-btn");
+
+    function shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+    }
+
+    function startGame() {
+        score = 0;
+        currentQuestionIndex = 0;
+        shuffleArray(questions);
+        restartBtn.style.display = "none";
+        loadQuestion();
+    }
+
+    function loadQuestion() {
+        if (currentQuestionIndex >= questions.length) {
+            endGame();
+            return;
+        }
+
+        const currentQ = questions[currentQuestionIndex];
+        questionTextEl.textContent = currentQ.text;
+        optionsAreaEl.innerHTML = "";
+        feedbackEl.textContent = "";
+        
+        currentQ.options.forEach((opt, index) => {
+            const btn = document.createElement("button");
+            btn.className = "btn";
+            btn.textContent = opt;
+            btn.onclick = () => checkAnswer(index);
+            optionsAreaEl.appendChild(btn);
+        });
+
+        scoreBoardEl.textContent = `Puan: ${score} | Soru: ${currentQuestionIndex + 1}/${questions.length}`;
+        resetTimer();
+    }
+
+    function resetTimer() {
+        clearInterval(timerInterval);
+        timeLeft = totalTime;
+        timerBarEl.style.width = "100%";
+        timerBarEl.style.backgroundColor = "#f39c12";
+        
+        timerInterval = setInterval(() => {
+            timeLeft--;
+            const percentage = (timeLeft / totalTime) * 100;
+            timerBarEl.style.width = percentage + "%";
+            
+            if (percentage < 30) {
+                timerBarEl.style.backgroundColor = "#e74c3c";
+            }
+
+            if (timeLeft <= 0) {
+                clearInterval(timerInterval);
+                checkAnswer(-1); 
+            }
+        }, 1000);
+    }
+
+    function checkAnswer(selectedIndex) {
+        clearInterval(timerInterval);
+        const currentQ = questions[currentQuestionIndex];
+        const buttons = document.querySelectorAll(".options-grid .btn");
+        
+        buttons.forEach(btn => btn.disabled = true);
+
+        if (selectedIndex === currentQ.correct) {
+            if(selectedIndex !== -1) buttons[selectedIndex].classList.add("correct");
+            feedbackEl.textContent = "✅ " + (currentQ.info || "Doğru!");
+            feedbackEl.style.color = "#27ae60";
+            score += 10;
+        } else {
+            if (selectedIndex !== -1) {
+                buttons[selectedIndex].classList.add("wrong");
+            }
+            if (currentQ.correct !== -1) {
+                buttons[currentQ.correct].classList.add("correct");
+            }
+            feedbackEl.textContent = "❌ " + (currentQ.info || "Yanlış!");
+            feedbackEl.style.color = "#c0392b";
+        }
+
+        scoreBoardEl.textContent = `Puan: ${score} | Soru: ${currentQuestionIndex + 1}/${questions.length}`;
+
+        setTimeout(() => {
+            currentQuestionIndex++;
+            loadQuestion();
+        }, 4000);
+    }
+
+    function endGame() {
+        questionTextEl.textContent = "🎉 Yarışma Tamamlandı!";
+        optionsAreaEl.innerHTML = "";
+        feedbackEl.textContent = "";
+        timerBarEl.style.width = "0%";
+        
+        let finalMessage = "";
+        const percentage = (score / (questions.length * 10)) * 100;
+
+        if (percentage >= 90) finalMessage = "🏆 Efsanesin! Konuya tamamen hakimsin.";
+        else if (percentage >= 70) finalMessage = "👏 Çok Başarılı! Ufak tekrarlarla fulleyebilirsin.";
+        else finalMessage = "📚 Biraz daha çalışmalısın. Kaynaklara göz at!";
+
+        scoreBoardEl.innerHTML = `<span style="color:#2c3e50; font-size: 32px;">Toplam Puan: ${score}</span><br><br>${finalMessage}`;
+        restartBtn.style.display = "block";
+        restartBtn.onclick = startGame;
+    }
+
+    startGame();
+
+</script>
+
+</body>
+</html>
