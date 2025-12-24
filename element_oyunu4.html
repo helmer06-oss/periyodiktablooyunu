@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Periyodik Tablo Yarışması - tolgaaydos.com</title>
+    <title>tolgaaydos.com-Periyodik Tablo Yarışması</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #2c3e50;
+            background-color: #2c3e50; /* Arka Plan: Koyu Lacivert */
             display: flex;
             justify-content: center;
             align-items: center;
@@ -16,7 +16,7 @@
             padding: 20px 0;
         }
         #game-container {
-            background-color: #ffffff;
+            background-color: #ffffff; /* Oyun Kartı: Beyaz */
             width: 90%; 
             max-width: 900px;
             padding: 40px 50px;
@@ -27,24 +27,26 @@
             position: relative;
         }
         
-        /* LOGO AYARLARI */
+        /* LOGO STİLİ */
         #site-logo {
-            max-width: 250px;     /* Genişlik sınırı */
-            max-height: 150px;    /* Yükseklik sınırı */
+            max-width: 250px;
+            max-height: 150px;
             width: auto;
             height: auto;
-            margin: 0 auto 20px auto;
-            display: block;       /* Ortalamak için */
+            margin: 0 auto 15px auto;
+            display: block;
         }
 
+        /* BAŞLIK STİLİ */
         h1 {
             color: #2c3e50;
-            font-size: 32px;
+            font-size: 32px; /* Mobilde taşmasın diye biraz küçülttüm */
             margin-bottom: 25px;
             border-bottom: 3px solid #3498db;
             padding-bottom: 15px;
             display: inline-block;
             width: 100%;
+            word-wrap: break-word; /* Uzun başlıkları alta kaydır */
         }
         
         #question-text {
@@ -91,6 +93,7 @@
             box-shadow: none;
         }
         
+        /* FOOTER BRANDING */
         #footer-branding {
             margin-top: 40px;
             padding-top: 20px;
@@ -104,10 +107,11 @@
             font-weight: bold;
         }
         
-        /* Renkler */
+        /* DOĞRU / YANLIŞ RENKLERİ */
         .correct { background-color: #27ae60 !important; border-color: #27ae60 !important; color: white !important; }
         .wrong { background-color: #c0392b !important; border-color: #c0392b !important; color: white !important; }
         
+        /* SAYAÇ ÇUBUĞU */
         #timer-bar-container {
             width: 100%;
             height: 14px;
@@ -149,7 +153,7 @@
             #question-text { font-size: 22px; min-height: auto; }
             .btn { font-size: 18px; padding: 18px; }
             #game-container { padding: 30px 20px; width: 95%; }
-            h1 { font-size: 26px; }
+            h1 { font-size: 24px; }
         }
     </style>
 </head>
@@ -157,9 +161,9 @@
 
 <div id="game-container">
     
-    <img id="site-logo" src="logo.png" alt="Tolga Aydos Logo" onerror="this.style.display='none'"> 
+    <img id="site-logo" src="logo.png" alt="Tolga Aydos Logo" onerror="this.style.display='none'">
     
-    <h1>🧪 Tolga Aydos ile Periyodik Tablo Yarışması</h1>
+    <h1>tolgaaydos.com-Periyodik Tablo Yarışması</h1>
     
     <div id="timer-bar-container">
         <div id="timer-bar"></div>
@@ -168,15 +172,22 @@
     <div id="question-text">Sorular Yükleniyor...</div>
     <div class="options-grid" id="options-area"></div>
     <div id="score-board">Puan: 0</div>
+    
     <button id="restart-btn" class="btn" style="display:none;">Yeniden Başlat</button>
 
+    <a href="BURAYA_GITHUB_LINKINI_YAPISTIRIN" target="_blank" style="text-decoration: none;">
+        <button class="btn" style="background-color: #e67e22; border-color: #d35400; margin-top: 15px; width: 100%;">
+            📄 Ders Notlarını PDF Olarak İndir
+        </button>
+    </a>
+
     <div id="footer-branding">
-        Bu etkinlik <a href="https://tolgaaydos.com" target="_blank">tolgaaydos.com</a> tarafından hazırlanmıştır.
+        Bu etkinlik <a href="https://tolgaaydos.com" target="_blank">tolgaaydos.com</a> öğrencileri için hazırlanmıştır.
     </div>
 </div>
 
 <script>
-<script>
+    // SORU HAVUZU
     const questions = [
         { text: "Metallerin son katmanlarında genellikle kaç elektron bulunur?", options: ["1, 2 veya 3", "5, 6 veya 7", "Tamamı doludur (8)", "Sadece 1"], correct: 0, info: "Metallerin son yörüngesinde genelde 1, 2, 3 elektron bulunur." },
         { text: "Ametallerin son katmanlarında genellikle kaç elektron bulunur?", options: ["1, 2 veya 3", "4, 5, 6 veya 7", "Sadece 8", "Sadece 2"], correct: 1, info: "Ametallerin son katmanlarında genellikle 5, 6 veya 7 elektron vardır." },
@@ -250,6 +261,7 @@
         feedbackEl.textContent = "";
 
         // Şıkları hazırla ve etiketle (Hangi şıkkın doğru olduğunu içine gömüyoruz)
+        // Böylece şıkların yerini değiştirsek bile doğru cevabı kaybetmeyiz.
         let optionsWithLogic = currentQ.options.map((opt, index) => {
             return { 
                 text: opt, 
@@ -332,7 +344,7 @@
             feedbackEl.style.color = "#c0392b";
         }
 
-        // Her durumda doğru cevabı yeşil yakarak göster
+        // Her durumda doğru cevabı yeşil yakarak göster (Öğrenci görsün)
         allButtons.forEach(btn => {
             if (btn.dataset.correct === "true") {
                 btn.classList.add("correct");
@@ -365,14 +377,10 @@
         restartBtn.onclick = startGame;
     }
 
+    // Oyunu Başlat
     startGame();
 
 </script>
 
-</script>
-
 </body>
-
 </html>
-
-
